@@ -33,7 +33,5 @@ public class Main {
 
         var parser = new Parser(rewrittenTokens);
         var fn = parser.parse();
-
-        System.out.println(fn);
     }
 }

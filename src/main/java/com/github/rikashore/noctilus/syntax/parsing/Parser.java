@@ -29,15 +29,21 @@ public class Parser {
     }
 
     private KnValue parseNextValue() {
-        var value = switch (tokens[current]) {
+        return switch (tokens[current]) {
             case IdentifierToken i -> new KnVariable(i.literal);
             case IntToken in -> new KnInt(in.literal);
             case StringToken s -> new KnString(s.literal);
             case FunctionToken f -> {
-                if (f.name.equals("T")) {
-                    yield new KnBool(true);
-                } else if (f.name.equals("F")) {
-                    yield new KnBool(false);
+                switch (f.name) {
+                    case "T" -> {
+                        yield new KnBool(true);
+                    }
+                    case "F" -> {
+                        yield new KnBool(false);
+                    }
+                    case "N" -> {
+                        yield new KnNil();
+                    }
                 }
 
                 var args = new KnValue[f.arity];
@@ -51,6 +57,5 @@ public class Parser {
             }
             default -> throw new RuntimeException("Unexpected value");
         };
-        return value;
     }
 }
