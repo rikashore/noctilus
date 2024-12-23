@@ -14,7 +14,6 @@ public class KnownFunctions {
         knownFunctions.put("P", 0);
         knownFunctions.put("R", 0);
 
-        knownFunctions.put(":", 1);
         knownFunctions.put("!", 1);
         knownFunctions.put("~", 1);
         knownFunctions.put(",", 1);

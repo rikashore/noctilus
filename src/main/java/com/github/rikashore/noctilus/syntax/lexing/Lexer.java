@@ -52,7 +52,7 @@ public class Lexer {
         var curr = advance();
 
         var token = switch (curr) {
-            case ' ', '\r', '\t', '(', ')' -> new Token(TokenType.Fluff, String.valueOf(curr), line);
+            case ' ', '\r', '\t', '(', ')', ':' -> new Token(TokenType.Fluff, String.valueOf(curr), line);
 
             case '\n' -> {
                 line++;
