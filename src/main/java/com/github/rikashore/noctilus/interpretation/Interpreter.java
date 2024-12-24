@@ -49,8 +49,8 @@ public class Interpreter {
             }
 
             // UNARY
-//            case "B" -> fn.args[0];
-//
+            case "B" -> new KnBlock(fn.args[0]);
+
 //            case "C" -> {
 //
 //            }
