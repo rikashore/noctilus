@@ -9,15 +9,10 @@ import com.github.rikashore.noctilus.syntax.rewriting.tokens.ErrorToken;
 public class Main {
     public static void main(String[] args) {
         var source = """
-                ; = maximum 100
-                ; = i 0
-                
-                : WHILE < i maximum
-                    ; = i + i 1
-                    : OUTPUT
-                        : IF ! % i 15 'FizzBuzz'
-                        : IF ! % i 5 'Fizz'
-                        : IF ! % i 3 'Buzz' i""";
+                ; = say BLOCK OUTPUT ++ 'hello, ' greeting signoff
+                ; = greeting 'mishka'
+                ; = signoff ', goodbye'
+                : OFFLOAD CALLING say""";
 
         var lexer = new Lexer(source);
         var tokens = lexer.scan();

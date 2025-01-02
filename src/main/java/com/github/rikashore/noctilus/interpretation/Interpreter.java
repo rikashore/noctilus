@@ -51,9 +51,18 @@ public class Interpreter {
             // UNARY
             case "B" -> new KnBlock(fn.args[0]);
 
-//            case "C" -> {
-//
-//            }
+            case "C" -> {
+                var arg = evaluate(fn.args[0]);
+
+                if (arg instanceof KnNil)
+                    throw new UnexpectedTypeException("No block with name found");
+
+
+                if (!(arg instanceof KnBlock block))
+                    throw new RuntimeException("Expected block, got" + arg);
+
+                yield evaluate(block.value);
+            }
 
             case "Q" -> {
                 var evaluated = evaluate(fn.args[0]);
