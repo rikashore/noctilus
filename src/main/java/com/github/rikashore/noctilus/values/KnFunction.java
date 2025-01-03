@@ -8,4 +8,9 @@ public class KnFunction extends KnValue {
         this.name = name;
         this.args = args;
     }
+
+    @Override
+    String getDebugRepresentation() {
+        return String.format("FUNCTION %s, arity %d", this.name, this.args.length);
+    }
 }

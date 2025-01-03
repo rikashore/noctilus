@@ -6,4 +6,9 @@ public class KnString extends KnValue {
     public KnString(String value) {
         this.value = value;
     }
+
+    @Override
+    String getDebugRepresentation() {
+        return "\"" + this.value + "\"";
+    }
 }

@@ -6,4 +6,9 @@ public class KnBool extends KnValue {
     public KnBool(Boolean value) {
         this.value = value;
     }
+
+    @Override
+    String getDebugRepresentation() {
+        return value.toString();
+    }
 }

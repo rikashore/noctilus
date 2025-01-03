@@ -6,4 +6,9 @@ public class KnInt extends KnValue {
     public KnInt(Integer value) {
         this.value = value;
     }
+
+    @Override
+    String getDebugRepresentation() {
+        return this.value.toString();
+    }
 }
