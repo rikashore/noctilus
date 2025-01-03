@@ -26,6 +26,7 @@ public class Interpreter {
             case KnString knString -> knString;
             case KnVariable knVariable -> this.variables.getOrDefault(knVariable.name, new KnNil());
             case KnFunction knFunction -> this.evaluateFunction(knFunction);
+            case KnList knl -> knl;
             default -> throw new RuntimeException("Did you forget a case");
         };
     }
@@ -59,7 +60,7 @@ public class Interpreter {
 
 
                 if (!(arg instanceof KnBlock block))
-                    throw new RuntimeException("Expected block, got" + arg);
+                    throw new RuntimeException("Expected block, got" + arg.getDebugRepresentation());
 
                 yield evaluate(block.value);
             }
@@ -68,7 +69,7 @@ public class Interpreter {
                 var evaluated = evaluate(fn.args[0]);
 
                 if (!(evaluated instanceof KnInt kni))
-                    throw new UnexpectedTypeException("Expected integer but got" + evaluated);
+                    throw new UnexpectedTypeException("Expected integer but got" + evaluated.getDebugRepresentation());
 
                 var exitCode = kni.value >= 0 && kni.value <= 127 ? kni.value : 1;
 
@@ -92,25 +93,7 @@ public class Interpreter {
 
             case "D" -> {
                 var evaluated = evaluate(fn.args[0]);
-                var output = switch (evaluated) {
-                    case KnInt kni -> kni.value.toString();
-                    case KnBool knb -> knb.value.toString();
-                    case KnString kns -> {
-                        var contents = kns.value.codePoints()
-                                .mapToObj(b -> switch (b) {
-                                  case 0x09 -> "\\t";
-                                  case 0x0A -> "\\n";
-                                  case 0x0D -> "\\r";
-                                  case 0x5C -> "\\";
-                                  case 0x22 -> "\"";
-                                  default -> Character.toString(b);
-                                })
-                                .collect(Collectors.joining());
-
-                        yield "\"" + contents + "\"";
-                    }
-                    default -> throw new IllegalStateException("Unexpected value: " + fn.args[0]);
-                };
+                var output = evaluated.getDebugRepresentation();
                 System.out.println(output);
                 yield evaluated;
             }
@@ -128,7 +111,7 @@ public class Interpreter {
             case "A" -> switch (evaluate(fn.args[0])) {
                 case KnInt kni -> new KnString(Character.toString(kni.value));
                 case KnString kns -> new KnInt(Character.codePointAt(kns.value, 0));
-                default -> throw new UnexpectedTypeException("Expected Integer or String, got " + fn.args[0]);
+                default -> throw new UnexpectedTypeException("Expected Integer or String, got " + fn.args[0].getDebugRepresentation());
             };
 
             // BINARY
@@ -146,14 +129,14 @@ public class Interpreter {
 
                     yield new KnString(kns.value + coerced.value);
                 }
-                default -> throw new UnexpectedTypeException("Expected Integer, List or String, got" + fn.args[0]);
+                default -> throw new UnexpectedTypeException("Expected Integer, List or String, got" + fn.args[0].getDebugRepresentation());
             };
 
             case "-" -> {
                 var evaluated = evaluate(fn.args[0]);
 
                 if (!(evaluated instanceof KnInt kni))
-                    throw new UnexpectedTypeException("Expected Integer, got" + fn.args[0]);
+                    throw new UnexpectedTypeException("Expected Integer, got" + fn.args[0].getDebugRepresentation());
 
                 var second = evaluate(fn.args[1]);
                 var arg = coerceToInt(second);
@@ -177,14 +160,14 @@ public class Interpreter {
 
                     yield new KnString(kns.value.repeat(coerced.value));
                 }
-                default -> throw new UnexpectedTypeException("Expected Integer, List or String, got" + fn.args[0]);
+                default -> throw new UnexpectedTypeException("Expected Integer, List or String, got" + fn.args[0].getDebugRepresentation());
             };
 
             case "/" -> {
                 var evaluated = evaluate(fn.args[0]);
 
                 if (!(evaluated instanceof KnInt kni))
-                    throw new UnexpectedTypeException("Expected Integer, got" + fn.args[0]);
+                    throw new UnexpectedTypeException("Expected Integer, got" + fn.args[0].getDebugRepresentation());
 
                 var second = evaluate(fn.args[1]);
                 var arg = coerceToInt(second);
@@ -199,7 +182,7 @@ public class Interpreter {
                 var evaluated = evaluate(fn.args[0]);
 
                 if (!(evaluated instanceof KnInt kni))
-                    throw new UnexpectedTypeException("Expected Integer, got" + fn.args[0]);
+                    throw new UnexpectedTypeException("Expected Integer, got" + fn.args[0].getDebugRepresentation());
 
                 if (kni.value < 0)
                     throw new RuntimeException("Expected positive integer or 0");
@@ -232,7 +215,7 @@ public class Interpreter {
 
                     yield new KnBool(!knb.value && coerced.value);
                 }
-                default -> throw new UnexpectedTypeException("Expected Integer, List or String, got" + fn.args[0]);
+                default -> throw new UnexpectedTypeException("Expected Integer, List or String, got" + fn.args[0].getDebugRepresentation());
             };
 
             case ">" -> switch (evaluate(fn.args[0])) {
@@ -254,7 +237,7 @@ public class Interpreter {
 
                     yield new KnBool(knb.value && !coerced.value);
                 }
-                default -> throw new UnexpectedTypeException("Expected Integer, List or String, got" + fn.args[0]);
+                default -> throw new UnexpectedTypeException("Expected Integer, List or String, got" + fn.args[0].getDebugRepresentation());
             };
 
             case "&" -> {
@@ -284,7 +267,7 @@ public class Interpreter {
 
             case "=" -> {
                 if (!(fn.args[0] instanceof KnVariable variable))
-                    throw new UnexpectedTypeException("Expected Variable Name, got" + fn.args[0]);
+                    throw new UnexpectedTypeException("Expected Variable Name, got" + fn.args[0].getDebugRepresentation());
 
                 var evaluated = evaluate(fn.args[1]);
                 this.variables.put(variable.name, evaluated);
@@ -336,6 +319,7 @@ public class Interpreter {
                 yield new KnInt(sub.isEmpty() ? 0 : Integer.parseInt(sub));
             }
             case KnBool knb -> new KnInt(knb.value ? 1 : 0);
+            case KnList knl -> new KnInt(knl.backing.size());
             default -> throw new IllegalStateException("What");
         };
     }
@@ -346,6 +330,7 @@ public class Interpreter {
             case KnInt kni -> new KnBool(kni.value != 0);
             case KnString kns -> new KnBool(!kns.value.isEmpty());
             case KnBool knb -> knb;
+            case KnList knl -> new KnBool(!knl.backing.isEmpty());
             default -> throw new IllegalStateException("What" + value);
         };
     }
@@ -356,6 +341,17 @@ public class Interpreter {
             case KnInt kni -> new KnString(Integer.toString(kni.value));
             case KnString kns -> kns;
             case KnBool knb -> new KnString(knb.value ? "true" : "false");
+            case KnList knl -> {
+                if (knl.backing.isEmpty())
+                    yield new KnString("");
+
+                var representation = knl.backing.stream()
+                        .map(this::coerceToString)
+                        .map(kv -> kv.value)
+                        .collect(Collectors.joining("\n"));
+
+                yield new KnString(representation);
+            }
             default -> throw new IllegalStateException("What");
         };
     }

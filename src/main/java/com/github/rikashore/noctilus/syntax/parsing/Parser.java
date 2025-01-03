@@ -44,6 +44,9 @@ public class Parser {
                     case "N" -> {
                         yield new KnNil();
                     }
+                    case "@" -> {
+                        yield KnList.empty();
+                    }
                 }
 
                 var args = new KnValue[f.arity];

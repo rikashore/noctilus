@@ -8,7 +8,7 @@ public class KnBool extends KnValue {
     }
 
     @Override
-    String getDebugRepresentation() {
+    public String getDebugRepresentation() {
         return value.toString();
     }
 }

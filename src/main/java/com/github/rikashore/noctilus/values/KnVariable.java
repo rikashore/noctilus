@@ -8,7 +8,7 @@ public class KnVariable extends KnValue {
     }
 
     @Override
-    String getDebugRepresentation() {
+    public String getDebugRepresentation() {
         return String.format("ident(%s)", this.name);
     }
 }

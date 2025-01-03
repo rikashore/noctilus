@@ -10,7 +10,7 @@ public class KnFunction extends KnValue {
     }
 
     @Override
-    String getDebugRepresentation() {
+    public String getDebugRepresentation() {
         return String.format("FUNCTION %s, arity %d", this.name, this.args.length);
     }
 }

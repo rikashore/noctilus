@@ -1,19 +1,34 @@
 package com.github.rikashore.noctilus.values;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 public class KnList extends KnValue {
-    public final KnValue[] backing;
+    public final List<KnValue> backing;
 
-    public KnList(KnValue[] backing) {
+    private KnList(List<KnValue> backing) {
         this.backing = backing;
     }
 
+    public static KnList empty() {
+        return new KnList(new ArrayList<>());
+    }
+
+    public static KnList fromElements(List<KnValue> values) {
+        return new KnList(values);
+    }
+
+    public KnList append(KnValue value) {
+        var newBacking = new ArrayList<>(this.backing);
+        newBacking.add(value);
+        return KnList.fromElements(newBacking);
+    }
+
     @Override
-    String getDebugRepresentation() {
+    public String getDebugRepresentation() {
         var contents = String.join(
                 ", ",
-                Arrays.stream(this.backing).map(KnValue::getDebugRepresentation).toList()
+                this.backing.stream().map(KnValue::getDebugRepresentation).toList()
         );
 
         return "[" + contents + "]";

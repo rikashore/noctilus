@@ -8,7 +8,7 @@ public class KnInt extends KnValue {
     }
 
     @Override
-    String getDebugRepresentation() {
+    public String getDebugRepresentation() {
         return this.value.toString();
     }
 }
